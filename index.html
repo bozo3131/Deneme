@@ -1,40 +1,402 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Erzurum Portalı</title>
-  <style>
-    body {
-      margin: 0;
-      background: #0f172a;
-      color: #f8fafc;
-      font-family: system-ui, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      text-align: center;
-      padding: 20px;
-    }
-    .box {
-      background: #1e293b;
-      padding: 30px;
-      border-radius: 16px;
-      border: 1px solid #334155;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    }
-    h1 { margin-bottom: 10px; color: #38bdf8; }
-    p { color: #94a3b8; font-size: 15px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instagram Panel</title>
+
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{
+    margin:0;
+    background:linear-gradient(135deg,#090014,#1b0033,#08000f);
+    color:white;
+    min-height:100vh;
+}
+.container{
+    max-width:420px;
+    margin:auto;
+    padding:35px 18px;
+}
+.card{
+    background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:18px;
+    padding:24px;
+    margin-bottom:20px;
+    box-shadow:0 15px 50px rgba(0,0,0,.35);
+}
+h1{
+    text-align:center;
+    margin-bottom:8px;
+}
+.sub{
+    text-align:center;
+    color:#aaa;
+    font-size:13px;
+    margin-bottom:25px;
+}
+input,button{
+    width:100%;
+    padding:14px;
+    margin-top:10px;
+    border-radius:10px;
+    border:0;
+    outline:0;
+}
+input{
+    background:#15101b;
+    border:1px solid #302337;
+    color:white;
+}
+button{
+    background:linear-gradient(90deg,#8b2cff,#e3008c);
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+button:hover{opacity:.9}
+.telegram{
+    display:block;
+    text-align:center;
+    margin-top:18px;
+    color:#35aaff;
+    text-decoration:none;
+    font-weight:bold;
+}
+.hidden{display:none}
+.status{
+    background:#110d16;
+    border-radius:12px;
+    padding:15px;
+    margin-top:18px;
+    min-height:100px;
+    font-size:13px;
+}
+.line{
+    padding:6px 0;
+    border-bottom:1px solid #241d29;
+}
+.admin-title{
+    color:#c77dff;
+}
+.key{
+    background:#09070b;
+    padding:12px;
+    border-radius:10px;
+    margin-top:10px;
+    word-break:break-all;
+}
+small{color:#999}
+</style>
 </head>
+
 <body>
-  <div class="box">
-    <h1>Site Yayında!</h1>
-    <p>bozodanan herkese açık ilk web sayfası başarıyla yüklendi.</p>
-  </div>
+
+<div class="container">
+
+<!-- ANA SAYFA -->
+<div class="card" id="home">
+    <h1>Instagram Panel</h1>
+    <div class="sub">
+        Gelişmiş hesap analiz paneli
+    </div>
+
+    <input id="keyInput" placeholder="Keyinizi girin">
+
+    <button onclick="loginKey()">Panele Giriş</button>
+
+    <a class="telegram"
+       href="https://t.me/kurultaybaskani"
+       target="_blank">
+       🔑 Key almak için @kurultaybaskani
+    </a>
+
+    <button onclick="showAdmin()"
+            style="margin-top:25px;background:#27202d">
+        Admin Panel
+    </button>
+</div>
+
+
+<!-- KULLANICI PANELİ -->
+<div class="card hidden" id="userPanel">
+
+    <h1>Instagram Analiz</h1>
+
+    <div class="sub">
+        Yetkiniz doğrulandı.
+    </div>
+
+    <input id="username"
+           placeholder="Instagram kullanıcı adı">
+
+    <button onclick="startDemo()">
+        Devam Et
+    </button>
+
+    <div id="result" class="status hidden"></div>
+
+</div>
+
+
+<!-- ADMIN GİRİŞ -->
+<div class="card hidden" id="adminLogin">
+
+    <h1>Admin Girişi</h1>
+
+    <input id="adminUser"
+           placeholder="Kullanıcı adı">
+
+    <input id="adminPass"
+           type="password"
+           placeholder="Şifre">
+
+    <button onclick="adminLogin()">
+        Giriş Yap
+    </button>
+
+</div>
+
+
+<!-- ADMIN PANEL -->
+<div class="card hidden" id="adminPanel">
+
+    <h1 class="admin-title">Admin Panel</h1>
+
+    <div class="sub">
+        Key oluşturma merkezi
+    </div>
+
+    <input id="customKey"
+           placeholder="Key ismi / ID">
+
+    <select id="duration"
+            style="width:100%;margin-top:10px;padding:14px;border-radius:10px;background:#15101b;color:white">
+        <option value="1 Gün">1 Günlük</option>
+        <option value="1 Hafta">1 Haftalık</option>
+        <option value="1 Ay">1 Aylık</option>
+    </select>
+
+    <button onclick="createKey()">
+        Key Oluştur
+    </button>
+
+    <div id="keys"></div>
+
+    <button onclick="logout()"
+            style="background:#2b202f;margin-top:20px">
+        Çıkış
+    </button>
+
+</div>
+
+</div>
+
+<script>
+
+/* -------------------------
+   KEY SİSTEMİ
+------------------------- */
+
+let keys = JSON.parse(localStorage.getItem("demoKeys") || "[]");
+
+function saveKeys(){
+    localStorage.setItem("demoKeys", JSON.stringify(keys));
+}
+
+function randomID(){
+    return Math.random().toString(36).substring(2,8).toUpperCase()
+        + "-" +
+        Math.random().toString(36).substring(2,8).toUpperCase();
+}
+
+function createKey(){
+
+    let custom = document.getElementById("customKey").value.trim();
+    let duration = document.getElementById("duration").value;
+
+    let newKey = custom || "KURULTAY-" + randomID();
+
+    keys.push({
+        key:newKey,
+        duration:duration,
+        created:new Date().toLocaleString("tr-TR"),
+        active:true
+    });
+
+    saveKeys();
+
+    alert(
+        "KEY OLUŞTURULDU\n\n" +
+        "Key: " + newKey +
+        "\nSüre: " + duration
+    );
+
+    document.getElementById("customKey").value="";
+    renderKeys();
+}
+
+function renderKeys(){
+
+    let area=document.getElementById("keys");
+    area.innerHTML="";
+
+    keys.forEach((k,i)=>{
+
+        let div=document.createElement("div");
+        div.className="key";
+
+        div.innerHTML=`
+        <b>${k.key}</b><br>
+        <small>
+        Süre: ${k.duration}<br>
+        Oluşturulma: ${k.created}<br>
+        Durum: ${k.active ? "Aktif":"Pasif"}
+        </small>
+        <button onclick="deleteKey(${i})"
+        style="background:#351722;margin-top:8px">
+        Key Sil
+        </button>
+        `;
+
+        area.appendChild(div);
+    });
+}
+
+function deleteKey(i){
+
+    keys.splice(i,1);
+    saveKeys();
+    renderKeys();
+
+}
+
+
+/* -------------------------
+   KEY LOGIN
+------------------------- */
+
+function loginKey(){
+
+    let entered=document.getElementById("keyInput").value.trim();
+
+    let found=keys.find(k =>
+        k.key === entered && k.active
+    );
+
+    if(!found){
+        alert("Geçersiz veya pasif key!");
+        return;
+    }
+
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("userPanel").classList.remove("hidden");
+}
+
+
+/* -------------------------
+   SAHTE DEMO
+------------------------- */
+
+function startDemo(){
+
+    let username=document.getElementById("username").value.trim();
+
+    if(!username){
+        alert("Kullanıcı adı girin.");
+        return;
+    }
+
+    let result=document.getElementById("result");
+
+    result.classList.remove("hidden");
+
+    let fakePasswords=[
+        "********",
+        "********",
+        "123456••••",
+        "instagram••••",
+        "qwerty••••",
+        "••••••••",
+        "••••••••"
+    ];
+
+    result.innerHTML=
+        `<div class="line">
+        Kullanıcı: <b>@${username}</b>
+        </div>
+        <div class="line">
+        Bağlantı hazırlanıyor...
+        </div>`;
+
+    let i=0;
+
+    let interval=setInterval(()=>{
+
+        if(i < fakePasswords.length){
+
+            result.innerHTML +=
+            `<div class="line">
+            Deneme: ${fakePasswords[i]}
+            </div>`;
+
+            i++;
+
+        }else{
+
+            clearInterval(interval);
+
+            result.innerHTML +=
+            `<div class="line">
+            ❌ Sonuç bulunamadı.
+            </div>
+            <br>
+            <small>
+            Bu ekran yalnızca DEMO amaçlıdır.
+            Gerçek Instagram hesabına bağlantı yapılmadı.
+            </small>`;
+        }
+
+    },700);
+}
+
+
+/* -------------------------
+   ADMIN
+------------------------- */
+
+function showAdmin(){
+
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("adminLogin").classList.remove("hidden");
+
+}
+
+function adminLogin(){
+
+    let u=document.getElementById("adminUser").value;
+    let p=document.getElementById("adminPass").value;
+
+    if(u==="admin" && p==="potor25*"){
+
+        document.getElementById("adminLogin").classList.add("hidden");
+        document.getElementById("adminPanel").classList.remove("hidden");
+
+        renderKeys();
+
+    }else{
+        alert("Admin bilgileri hatalı!");
+    }
+}
+
+function logout(){
+
+    location.reload();
+
+}
+
+</script>
+
 </body>
 </html>
-
